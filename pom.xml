@@ -22,13 +22,13 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.0.0</version>
+            <version>6.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet.jsp</groupId>
             <artifactId>jakarta.servlet.jsp-api</artifactId>
-            <version>3.1.1</version>
+            <version>4.0.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.web</groupId>
@@ -48,12 +48,12 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
+            <version>42.7.14</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>5.1.0</version>
+            <version>7.1.0</version>
         </dependency>
 
         <!-- BCrypt Password Hashing -->
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
+            <version>6.1.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -78,7 +78,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>21</release>
                 </configuration>
@@ -86,7 +86,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.1</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
@@ -94,7 +94,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty.ee10</groupId>
                 <artifactId>jetty-ee10-maven-plugin</artifactId>
-                <version>12.0.15</version>
+                <version>12.1.15</version>
                 <configuration>
                     <httpConnector>
                         <port>${jetty.port}</port>
@@ -107,7 +107,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.6.1</version>
             </plugin>
         </plugins>
     </build>
