@@ -1,0 +1,54 @@
+name: harvesta
+
+services:
+  app:
+    build: .
+    image: harvesta-jsp:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_DATABASE: ${POSTGRES_DB:-harvesta}
+      DB_USERNAME: ${POSTGRES_USER:-harvesta}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+      DB_SSLMODE: disable
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?Set SEED_ADMIN_PASSWORD in .env.docker}
+      SEED_STAFF_EMAIL: ${SEED_STAFF_EMAIL:-staff@example.com}
+      SEED_STAFF_PASSWORD: ${SEED_STAFF_PASSWORD:?Set SEED_STAFF_PASSWORD in .env.docker}
+      SEED_VIEWER_EMAIL: ${SEED_VIEWER_EMAIL:-viewer@example.com}
+      SEED_VIEWER_PASSWORD: ${SEED_VIEWER_PASSWORD:?Set SEED_VIEWER_PASSWORD in .env.docker}
+    ports:
+      - "${APP_PORT:-8085}:8080"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    profiles:
+      - tunnel
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - app
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-harvesta}
+      POSTGRES_USER: ${POSTGRES_USER:-harvesta}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_data:

@@ -1,0 +1,135 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="ui" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="h" uri="https://harvesta.app/functions" %>
+
+<ui:layout title="Users" active="users">
+    <ui:header title="Users" description="Manage who can sign in and what they can access.">
+        <a href="${pageContext.request.contextPath}/users/create"
+           class="relative inline-flex items-center font-medium justify-center whitespace-nowrap h-10 text-sm rounded-lg gap-2 ps-3 pe-4 bg-[var(--color-accent)] hover:bg-[color-mix(in_oklab,_var(--color-accent),_transparent_10%)] text-[var(--color-accent-foreground)] border border-black/10 dark:border-0 shadow-[inset_0px_1px_--theme(--color-white/.2)]">
+            ${h:icon('plus')}
+            <span>Add user</span>
+        </a>
+    </ui:header>
+
+    <!-- Search & Filters -->
+    <div class="mb-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-xs dark:border-zinc-700 dark:bg-zinc-900">
+        <form method="GET" action="${pageContext.request.contextPath}/users" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Search</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-zinc-400">
+                        ${h:icon('magnifying-glass')}
+                    </span>
+                    <input type="text" name="search" value="${h:e(search)}" placeholder="Search name or email..."
+                           class="w-full border block appearance-none text-sm rounded-lg py-2 h-10 ps-10 pe-3 bg-white dark:bg-white/10 text-zinc-700 dark:text-zinc-300 placeholder-zinc-400 border-zinc-200 dark:border-white/10" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Role</label>
+                <select name="role" class="w-full block appearance-none text-sm rounded-lg py-2 h-10 px-3 bg-white dark:bg-white/10 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-white/10">
+                    <option value="">All roles</option>
+                    <c:forEach var="entry" items="${roles}">
+                        <option value="${entry.key}" ${entry.key == selectedRole ? 'selected' : ''}>${entry.value}</option>
+                    </c:forEach>
+                </select>
+            </div>
+
+            <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-2">
+                <button type="submit" class="h-10 px-4 text-sm font-medium rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90">Filter</button>
+                <a href="${pageContext.request.contextPath}/users" class="h-10 px-3 inline-flex items-center text-sm font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-sm text-zinc-500 dark:text-zinc-400">
+            ${totalCount} ${totalCount == 1 ? 'user' : 'users'}
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-700 dark:bg-zinc-900">
+        <c:choose>
+            <c:when test="${not empty users}">
+                <div class="overflow-x-auto">
+                    <table class="[:where(&)]:min-w-full table-fixed border-separate border-spacing-0 isolate text-zinc-800 dark:text-zinc-200 whitespace-nowrap" data-flux-table>
+                        <thead>
+                            <tr class="text-xs font-semibold uppercase tracking-wider text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
+                                <th class="py-3 px-3 text-start">
+                                    <a href="${pageContext.request.contextPath}/users?search=${h:e(search)}&role=${h:e(selectedRole)}&sort=name&direction=${sort == 'name' && direction == 'asc' ? 'desc' : 'asc'}" class="inline-flex items-center gap-1 hover:text-zinc-800 dark:hover:text-white">
+                                        Name
+                                        <c:if test="${sort == 'name'}">
+                                            <span>${direction == 'asc' ? '↑' : '↓'}</span>
+                                        </c:if>
+                                    </a>
+                                </th>
+                                <th class="py-3 px-3 text-start">
+                                    <a href="${pageContext.request.contextPath}/users?search=${h:e(search)}&role=${h:e(selectedRole)}&sort=email&direction=${sort == 'email' && direction == 'asc' ? 'desc' : 'asc'}" class="inline-flex items-center gap-1 hover:text-zinc-800 dark:hover:text-white">
+                                        Email
+                                        <c:if test="${sort == 'email'}">
+                                            <span>${direction == 'asc' ? '↑' : '↓'}</span>
+                                        </c:if>
+                                    </a>
+                                </th>
+                                <th class="py-3 px-3 text-start">Role</th>
+                                <th class="py-3 px-3 text-start">
+                                    <a href="${pageContext.request.contextPath}/users?search=${h:e(search)}&role=${h:e(selectedRole)}&sort=created_at&direction=${sort == 'created_at' && direction == 'asc' ? 'desc' : 'asc'}" class="inline-flex items-center gap-1 hover:text-zinc-800 dark:hover:text-white">
+                                        Created
+                                        <c:if test="${sort == 'created_at'}">
+                                            <span>${direction == 'asc' ? '↑' : '↓'}</span>
+                                        </c:if>
+                                    </a>
+                                </th>
+                                <th class="py-3 px-3 text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800 text-sm">
+                            <c:forEach var="u" items="${users}">
+                                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                    <td class="py-3 px-3 font-semibold text-zinc-900 dark:text-white">${h:e(u.name)}</td>
+                                    <td class="py-3 px-3 text-zinc-600 dark:text-zinc-400">${h:e(u.email)}</td>
+                                    <td class="py-3 px-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${u.role == 'admin' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'}">
+                                            ${h:label(u.role)}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-3 text-zinc-600 dark:text-zinc-400">${h:date(u.created_at)}</td>
+                                    <td class="py-3 px-3 text-end">
+                                        <div class="inline-flex items-center gap-2">
+                                            <a href="${pageContext.request.contextPath}/users/${u.id}/edit" class="p-1 text-zinc-500 hover:text-zinc-800 dark:hover:text-white" title="Edit user">
+                                                ${h:icon('pencil')}
+                                            </a>
+                                            <c:choose>
+                                                <c:when test="${u.role == 'admin' && adminCount <= 1}">
+                                                    <span class="p-1 text-zinc-300 dark:text-zinc-600 cursor-not-allowed" title="The last admin cannot be deleted.">
+                                                        ${h:icon('trash')}
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <form method="POST" action="${pageContext.request.contextPath}/users/${u.id}/delete" onsubmit="return confirm('Are you sure you want to delete this user?');" class="inline">
+                                                        <button type="submit" class="p-1 text-red-500 hover:text-red-700 cursor-pointer" title="Delete user">
+                                                            ${h:icon('trash')}
+                                                        </button>
+                                                    </form>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+
+                <ui:pagination currentPage="${currentPage}" totalPages="${totalPages}" totalCount="${totalCount}" pageSize="${pageSize}" queryString="${queryString}" />
+            </c:when>
+            <c:otherwise>
+                <ui:empty title="No users found." description="Adjust your filters or add a new user.">
+                    <a href="${pageContext.request.contextPath}/users/create" class="inline-flex items-center px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white text-sm font-medium">Add user</a>
+                </ui:empty>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</ui:layout>
