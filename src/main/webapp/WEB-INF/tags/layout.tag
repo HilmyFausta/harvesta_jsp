@@ -73,6 +73,104 @@
     .account-menu[open] .account-menu__chevron {
       transform: rotate(180deg);
     }
+    @media (min-width: 1024px) {
+      [data-flux-sidebar] {
+        position: sticky;
+        top: 0;
+        align-self: start;
+        height: 100dvh;
+        max-height: 100dvh;
+      }
+    }
+    @media (max-width: 1023px) {
+      html body {
+        display: block;
+      }
+      html body [data-flux-sidebar] {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 16rem;
+        height: 100dvh;
+        max-height: 100dvh;
+        z-index: 40;
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+      }
+      html body [data-flux-sidebar].sidebar-open {
+        transform: translateX(0);
+      }
+      html body [data-flux-header] {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        min-width: 0;
+      }
+      [data-flux-main] {
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        padding: 1rem;
+      }
+      #mobile-backdrop {
+        z-index: 30;
+      }
+      [data-flux-sidebar] {
+        height: 100dvh;
+        max-height: 100dvh;
+      }
+    }
+    @media (max-width: 639px) {
+      [data-flux-main] {
+        padding: .875rem;
+      }
+      [data-flux-main] > * {
+        min-width: 0;
+      }
+      [data-flux-main] .grid > * {
+        min-width: 0;
+      }
+      [data-flux-main] canvas {
+        max-width: 100%;
+      }
+    }
+    html.dark [class*="text-zinc-900"]:not([class*="dark:text-"]) {
+      color: #fafafa;
+    }
+    html.dark [class*="text-zinc-800"]:not([class*="dark:text-"]) {
+      color: #f4f4f5;
+    }
+    html.dark [class*="text-zinc-700"]:not([class*="dark:text-"]) {
+      color: #e4e4e7;
+    }
+    html.dark [class*="text-zinc-600"]:not([class*="dark:text-"]) {
+      color: #d4d4d8;
+    }
+    html.dark [class*="text-zinc-500"]:not([class*="dark:text-"]) {
+      color: #a1a1aa;
+    }
+    html.dark [class*="hover:bg-zinc-"]:not([class*="dark:hover:bg-"]):hover {
+      background-color: rgb(63 63 70 / .65);
+    }
+    html.dark [class*="hover:bg-white"]:not([class*="dark:hover:bg-"]):hover {
+      background-color: rgb(255 255 255 / .08);
+    }
+    html.dark [class*="hover:bg-red-"]:not([class*="dark:hover:bg-"]):hover {
+      background-color: rgb(127 29 29 / .25);
+    }
+    html.dark [class*="hover:text-zinc-900"]:not([class*="dark:hover:text-"]):hover {
+      color: #fafafa;
+    }
+    html.dark input:not([type="checkbox"]):not([type="radio"]),
+    html.dark select,
+    html.dark textarea {
+      color: #f4f4f5;
+      background-color: #27272a;
+      border-color: #52525b;
+    }
+    html.dark select option {
+      color: #f4f4f5;
+      background-color: #27272a;
+    }
     </style>
     <link rel="stylesheet" href="${ctx}/build/assets/app-C1XXSIRJ.css" />
     <script>
@@ -85,20 +183,21 @@
                 }
             }
         };
-        window.Flux.applyAppearance(localStorage.getItem('flux.appearance') || 'system');
+        window.Flux.applyAppearance(localStorage.getItem('flux.appearance') || 'light');
 
         function toggleSidebar() {
             var sb = document.getElementById('app-sidebar');
             var bd = document.getElementById('mobile-backdrop');
             if (sb && bd) {
-                var isHidden = sb.classList.contains('max-lg:-translate-x-full');
-                if (isHidden) {
-                    sb.classList.remove('max-lg:-translate-x-full');
+                var isOpen = sb.classList.contains('sidebar-open');
+                if (!isOpen) {
+                    sb.classList.add('sidebar-open');
                     bd.classList.remove('hidden');
                 } else {
-                    sb.classList.add('max-lg:-translate-x-full');
+                    sb.classList.remove('sidebar-open');
                     bd.classList.add('hidden');
                 }
+                document.getElementById('mobile-menu-button').setAttribute('aria-expanded', String(!isOpen));
             }
         }
 
@@ -113,6 +212,17 @@
             var menu = document.getElementById('account-menu');
             if (menu && event.key === 'Escape') {
                 menu.open = false;
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            var link = event.target.closest('#app-sidebar nav a');
+            if (link && window.matchMedia('(max-width: 1023px)').matches) {
+                var sidebar = document.getElementById('app-sidebar');
+                var backdrop = document.getElementById('mobile-backdrop');
+                sidebar.classList.remove('sidebar-open');
+                backdrop.classList.add('hidden');
+                document.getElementById('mobile-menu-button').setAttribute('aria-expanded', 'false');
             }
         });
     </script>
@@ -138,7 +248,7 @@
                 </div>
                 <div class="min-w-0 text-sm font-semibold tracking-wide text-zinc-800 dark:text-zinc-100">HARVESTA</div>
             </a>
-            <button type="button" onclick="toggleSidebar()" class="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 lg:hidden">
+            <button type="button" onclick="toggleSidebar()" class="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 lg:hidden" aria-label="Close navigation" aria-controls="app-sidebar">
                 <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -146,19 +256,19 @@
         <!-- Navigation items -->
         <nav class="flex-1 flex flex-col gap-6" data-flux-nav>
             <div class="flex flex-col gap-1">
-                <a href="${ctx}/dashboard" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'dashboard' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/dashboard" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'dashboard' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('dashboard')}
                     <span>Dashboard</span>
                 </a>
-                <a href="${ctx}/trees" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'trees' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/trees" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'trees' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('tree')}
                     <span>Trees</span>
                 </a>
-                <a href="${ctx}/care-logs" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'care-logs' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/care-logs" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'care-logs' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('care-logs')}
                     <span>Care Logs</span>
                 </a>
-                <a href="${ctx}/harvests" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'harvests' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/harvests" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'harvests' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('harvests')}
                     <span>Harvests</span>
                 </a>
@@ -167,15 +277,15 @@
             <!-- Master Data Group -->
             <div class="flex flex-col gap-1">
                 <div class="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Master Data</div>
-                <a href="${ctx}/categories" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'categories' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/categories" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'categories' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('categories')}
                     <span>Categories</span>
                 </a>
-                <a href="${ctx}/tree-types" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'tree-types' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/tree-types" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'tree-types' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('tree-types')}
                     <span>Tree Types</span>
                 </a>
-                <a href="${ctx}/blocks" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'blocks' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                <a href="${ctx}/blocks" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'blocks' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                     ${h:icon('blocks')}
                     <span>Blocks</span>
                 </a>
@@ -185,11 +295,11 @@
             <c:if test="${isAdmin}">
                 <div class="flex flex-col gap-1">
                     <div class="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Finance</div>
-                    <a href="${ctx}/expenses" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'expenses' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                    <a href="${ctx}/expenses" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'expenses' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                         ${h:icon('expenses')}
                         <span>Expenses</span>
                     </a>
-                    <a href="${ctx}/sales" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'sales' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                    <a href="${ctx}/sales" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'sales' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                         ${h:icon('sales')}
                         <span>Sales</span>
                     </a>
@@ -197,11 +307,11 @@
 
                 <div class="flex flex-col gap-1">
                     <div class="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Administration</div>
-                    <a href="${ctx}/reports" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'reports' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                    <a href="${ctx}/reports" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'reports' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                         ${h:icon('reports')}
                         <span>Reports</span>
                     </a>
-                    <a href="${ctx}/users" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'users' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900'}">
+                    <a href="${ctx}/users" class="h-9 relative flex items-center gap-3 rounded-lg py-0 px-3 text-sm font-medium transition-colors ${active == 'users' ? 'bg-zinc-800/5 text-(--color-accent-content) dark:bg-white/[7%] font-semibold' : 'text-zinc-600 dark:text-white/80 hover:bg-zinc-800/5 hover:text-zinc-900 dark:hover:bg-white/[7%] dark:hover:text-white'}">
                         ${h:icon('users')}
                         <span>Users</span>
                     </a>
@@ -265,7 +375,7 @@
 
     <!-- Mobile Top Header Bar -->
     <header class="[grid-area:header] z-10 min-h-14 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 lg:hidden" data-flux-header>
-        <button type="button" onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300">
+        <button id="mobile-menu-button" type="button" onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false">
             <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div class="flex items-center gap-2">

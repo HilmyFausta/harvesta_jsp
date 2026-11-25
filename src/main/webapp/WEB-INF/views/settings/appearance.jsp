@@ -81,7 +81,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const current = localStorage.getItem('flux.appearance') || 'system';
+            const current = localStorage.getItem('flux.appearance') || 'light';
             updateActiveSegment(current);
         });
     </script>

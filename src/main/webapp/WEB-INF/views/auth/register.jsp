@@ -33,13 +33,14 @@
 
             <div>
                 <label class="block text-sm font-medium text-zinc-800 dark:text-white mb-2" for="password">Password</label>
-                <input id="password" name="password" type="password" required placeholder="••••••••"
+                <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="••••••••"
                        class="w-full border block appearance-none text-base sm:text-sm rounded-lg py-2 h-10 ps-3 pe-3 bg-white dark:bg-white/10 text-zinc-700 dark:text-zinc-300 placeholder-zinc-400 shadow-xs border-zinc-200 border-b-zinc-300/80 dark:border-white/10 focus:outline-hidden focus:ring-2 focus:ring-(--color-accent)" />
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Use at least 8 characters.</p>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-zinc-800 dark:text-white mb-2" for="password_confirmation">Confirm password</label>
-                <input id="password_confirmation" name="password_confirmation" type="password" required placeholder="••••••••"
+                <input id="password_confirmation" name="password_confirmation" type="password" required minlength="8" autocomplete="new-password" placeholder="••••••••"
                        class="w-full border block appearance-none text-base sm:text-sm rounded-lg py-2 h-10 ps-3 pe-3 bg-white dark:bg-white/10 text-zinc-700 dark:text-zinc-300 placeholder-zinc-400 shadow-xs border-zinc-200 border-b-zinc-300/80 dark:border-white/10 focus:outline-hidden focus:ring-2 focus:ring-(--color-accent)" />
             </div>
 

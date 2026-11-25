@@ -91,14 +91,23 @@ See Cloudflare's current [Tunnel setup guide](https://developers.cloudflare.com/
 
 ## 6. Updates and backups
 
-To deploy a newer version from this repository:
+When new commits are available in GitHub, connect to the Ubuntu server over SSH and update the same repository checkout used to build the running CasaOS app:
 
 ```bash
+cd /path/to/harvesta
+git status --short
 git pull --ff-only
+docker compose --profile tunnel --env-file .env.docker config --quiet
 docker compose --profile tunnel --env-file .env.docker up --build -d
+docker compose --profile tunnel --env-file .env.docker ps
+docker compose --profile tunnel --env-file .env.docker logs --tail=100 app cloudflared
 ```
 
-This rebuilds the app image and keeps the PostgreSQL volume. GitHub pushes do not update this server automatically; an image publishing and update pipeline is not configured.
+Replace `/path/to/harvesta` with the actual clone directory on the server. Keep `.env.docker`; `git pull` does not replace it. The rebuild updates the app image and preserves the PostgreSQL volume. After the app reports healthy/started, visit `https://harvesta.example.com/` and log in. The root URL `/` redirects unauthenticated visitors to `/login` and authenticated visitors to `/dashboard`.
+
+If the CasaOS app was created by pasting a Compose file into the CasaOS interface rather than by pointing it at this checkout, `git pull` alone does not update that CasaOS stack. Update its Compose definition/build source in CasaOS, then redeploy it while retaining the existing database volume and `.env.docker` values. Do not remove the stack's data volume during an ordinary code update.
+
+GitHub pushes do not update this server automatically; an image publishing and update pipeline is not configured.
 
 Create a database backup periodically and store it outside the Docker volume:
 
@@ -116,7 +125,11 @@ docker compose --profile tunnel --env-file .env.docker down
 
 **Destructive:** `docker compose down -v` deletes the `postgres_data` volume and all database data. Back up the database before intentionally removing that volume.
 
-## Troubleshooting
+## 7. Default app routing
+
+Open the site at its hostname root, for example `https://harvesta.example.com/`. The application routes `/` to `/login` when there is no signed-in session and to `/dashboard` when a session exists. Configure the Cloudflare public hostname's service to point to the app root (`http://app:8080`); do not set `/login` as the service path.
+
+## 8. Troubleshooting
 
 - **App does not start:** check `docker compose --env-file .env.docker logs app` and verify the DB password values match.
 - **Tunnel does not connect:** check the token and `docker compose --profile tunnel --env-file .env.docker logs cloudflared`. The server must be able to make outbound connections.

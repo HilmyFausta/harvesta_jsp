@@ -52,6 +52,44 @@
     body {
       font-family: var(--font-inter);
     }
+    html.dark [class*="text-zinc-900"]:not([class*="dark:text-"]) {
+      color: #fafafa;
+    }
+    html.dark [class*="text-zinc-800"]:not([class*="dark:text-"]) {
+      color: #f4f4f5;
+    }
+    html.dark [class*="text-zinc-700"]:not([class*="dark:text-"]) {
+      color: #e4e4e7;
+    }
+    html.dark [class*="text-zinc-600"]:not([class*="dark:text-"]) {
+      color: #d4d4d8;
+    }
+    html.dark [class*="text-zinc-500"]:not([class*="dark:text-"]) {
+      color: #a1a1aa;
+    }
+    html.dark [class*="hover:bg-zinc-"]:not([class*="dark:hover:bg-"]):hover {
+      background-color: rgb(63 63 70 / .65);
+    }
+    html.dark [class*="hover:bg-white"]:not([class*="dark:hover:bg-"]):hover {
+      background-color: rgb(255 255 255 / .08);
+    }
+    html.dark [class*="hover:bg-red-"]:not([class*="dark:hover:bg-"]):hover {
+      background-color: rgb(127 29 29 / .25);
+    }
+    html.dark [class*="hover:text-zinc-900"]:not([class*="dark:hover:text-"]):hover {
+      color: #fafafa;
+    }
+    html.dark input:not([type="checkbox"]):not([type="radio"]),
+    html.dark select,
+    html.dark textarea {
+      color: #f4f4f5;
+      background-color: #27272a;
+      border-color: #52525b;
+    }
+    html.dark select option {
+      color: #f4f4f5;
+      background-color: #27272a;
+    }
     </style>
     <link rel="stylesheet" href="${ctx}/build/assets/app-C1XXSIRJ.css" />
     <script>
@@ -64,7 +102,7 @@
                 }
             }
         };
-        window.Flux.applyAppearance(localStorage.getItem('flux.appearance') || 'system');
+        window.Flux.applyAppearance(localStorage.getItem('flux.appearance') || 'light');
     </script>
 </head>
 <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
